@@ -1,1 +1,1 @@
-# codeforlife-code-checker
+# codeforlife-kurono-badges
