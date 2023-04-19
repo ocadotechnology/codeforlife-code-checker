@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, ValidationError, Json
 from waitress import serve
 import pytest
 
+import env
+
 
 app = Flask(__name__)
 
@@ -81,4 +83,8 @@ def run():
 
 
 if __name__ == "__main__":
-    serve(app, host="*", port="8080")
+    serve(
+        app,
+        host=env.APP_HOST,
+        port=env.APP_PORT,
+    )

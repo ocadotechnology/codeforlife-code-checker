@@ -11,7 +11,8 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "cwd": "${workspaceFolder}/context/app",
-      "program": "."
+      "program": ".",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
