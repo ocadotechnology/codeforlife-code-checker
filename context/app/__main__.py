@@ -1,12 +1,11 @@
-from time import time
 import json
 
-from flask import Flask, request, Response, jsonify
+from flask import Flask, request, Response
 from pydantic import BaseModel, Field, ValidationError, Json
 from waitress import serve
 import pytest
 
-json.detect_encoding
+
 app = Flask(__name__)
 
 
@@ -21,34 +20,34 @@ class Data(BaseModel):
 
 class TestResultsCollector:
     def __init__(self):
-        self.reports = []
-        self.collected = 0
-        self.exitcode = 0
-        self.passed = 0
-        self.failed = 0
-        self.xfailed = 0
-        self.skipped = 0
-        self.total_duration = 0
+        self.passed = []
+        self.failed = []
+        self.xfailed = []
+        self.skipped = []
 
-    @pytest.hookimpl(hookwrapper=True)
-    def pytest_runtest_makereport(self, item, call):
-        outcome = yield
-        report = outcome.get_result()
-        if report.when == "call":
-            self.reports.append(report)
+    def pytest_terminal_summary(self, terminalreporter):
+        self.passed = terminalreporter.stats.get("passed", [])
+        self.failed = terminalreporter.stats.get("failed", [])
+        self.xfailed = terminalreporter.stats.get("xfailed", [])
+        self.skipped = terminalreporter.stats.get("skipped", [])
 
-    def pytest_collection_modifyitems(self, items):
-        self.collected = len(items)
+    def json(self):
+        obj = {}
 
-    def pytest_terminal_summary(self, terminalreporter, exitstatus):
-        print(exitstatus, dir(exitstatus))
-        self.exitcode = exitstatus.value
-        self.passed = len(terminalreporter.stats.get("passed", []))
-        self.failed = len(terminalreporter.stats.get("failed", []))
-        self.xfailed = len(terminalreporter.stats.get("xfailed", []))
-        self.skipped = len(terminalreporter.stats.get("skipped", []))
+        def get_reports(name: str):
+            obj[name] = [
+                {
+                    "head_line": report.head_line,
+                }
+                for report in getattr(self, name)
+            ]
 
-        self.total_duration = time() - terminalreporter._sessionstarttime
+        get_reports("passed")
+        get_reports("failed")
+        get_reports("xfailed")
+        get_reports("skipped")
+
+        return json.dumps(obj)
 
 
 def run_tests(data: Data):
@@ -65,11 +64,11 @@ def run_tests(data: Data):
             json.dumps(data.avatar_state),
             f"test_worksheet_{data.worksheet_id}.py",
         ],
-        # plugins=[collector],
+        plugins=[collector],
     )
     if exit_code != 0:
-        return Response("Failed to run tests.", status=500)
-    return jsonify()#**collector.reports)
+        return Response("Failed to run tests.", status=500, content_type="text/plain")
+    return Response(collector.json(), status=200, content_type="application/json")
 
 
 @app.route("/", methods=["POST"])
@@ -82,4 +81,4 @@ def run():
 
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port="8080")
+    serve(app, host="*", port="8080")
