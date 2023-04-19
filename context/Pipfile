@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==2.2.3"
+waitress = "==2.1.2"
+pydantic = "==1.10.7"
+pytest = "==7.3.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
