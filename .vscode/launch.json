@@ -10,7 +10,7 @@
       "request": "launch",
       "console": "integratedTerminal",
       "justMyCode": false,
-      "cwd": "${workspaceFolder}/context/app",
+      "cwd": "${workspaceFolder}/app",
       "program": ".",
       "envFile": "${workspaceFolder}/.env"
     }
