@@ -8,7 +8,7 @@ RUN python -m pip install --upgrade pip \
   && python -m pip install pipenv \
   && python -m pipenv install
 
+# Start server.
+COPY /app /app
 WORKDIR /app
-COPY /app /app 
-
-ENTRYPOINT [ "python", "." ]
+ENTRYPOINT [ "gunicorn", "web:app" ]

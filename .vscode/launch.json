@@ -5,14 +5,28 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Service",
+      "name": "Flask",
       "type": "python",
       "request": "launch",
       "console": "integratedTerminal",
       "justMyCode": false,
       "cwd": "${workspaceFolder}/app",
-      "program": ".",
-      "envFile": "${workspaceFolder}/.env"
+      "program": "web.py"
+    },
+    {
+      "name": "Gunicorn",
+      "type": "python",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "cwd": "${workspaceFolder}/app",
+      "module": "gunicorn",
+      "args": [
+        "web:app"
+      ],
+      "env": {
+        "GEVENT_SUPPORT": "True"
+      }
     }
   ]
 }

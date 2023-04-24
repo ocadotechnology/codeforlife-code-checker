@@ -1,23 +1,11 @@
 import json
 
-from flask import Flask, request, Response
-from pydantic import BaseModel, Field, ValidationError, Json
-from waitress import serve
+from pydantic import BaseModel, Field, Json
 import pytest
 
-import env
 
-
-app = Flask(__name__)
-
-
-class Data(BaseModel):
-    worksheet_id: int = Field(ge=1, le=2)
-    source: str = Field()
-    world_state: Json = Field()
-    avatar_state: Json = Field()
-
-    # TODO: add validate that source contains "def next_turn(world_state, avatar_state):"
+class Error(Exception):
+    pass
 
 
 class TestResultsCollector:
@@ -52,7 +40,16 @@ class TestResultsCollector:
         return json.dumps(obj)
 
 
-def run_tests(data: Data):
+class Data(BaseModel):
+    worksheet_id: int = Field(ge=1, le=2)
+    source: str = Field()
+    world_state: Json = Field()
+    avatar_state: Json = Field()
+
+    # TODO: add validate that source contains "def next_turn(world_state, avatar_state):"
+
+
+def run(data: Data):
     collector = TestResultsCollector()
     exit_code = pytest.main(
         args=[
@@ -69,22 +66,5 @@ def run_tests(data: Data):
         plugins=[collector],
     )
     if exit_code != 0:
-        return Response("Failed to run tests.", status=500, content_type="text/plain")
-    return Response(collector.json(), status=200, content_type="application/json")
-
-
-@app.route("/", methods=["POST"])
-def run():
-    try:
-        data = Data(**request.json)
-    except ValidationError as error:
-        return Response(error.json(), status=400, content_type="application/json")
-    return run_tests(data)
-
-
-if __name__ == "__main__":
-    serve(
-        app,
-        host=env.APP_HOST,
-        port=env.APP_PORT,
-    )
+        raise Error("Tests exited with a non-zero exit status.")
+    return collector.json()
