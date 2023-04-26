@@ -1,15 +1,44 @@
+import typing as t
 import json
 
-from pydantic import BaseModel, Field, Json
+from pydantic import BaseModel, Field, validator
 import pytest
 
+# TODO: fix commented out imports
+# from codeforlife.kurono.world_map import WorldMapCreator
+# from codeforlife.kurono.avatar_state import create_avatar_state
+from kurono import GameState
 
-class Error(Exception):
-    pass
+
+class Source:
+    def __init__(self, value: str):
+        self.code = value
+        self.globals = {}
+        self.locals = {}
+
+        exec(value, self.globals, self.locals)
+
+
+class Data(BaseModel):
+    source: str = Field()
+    current_avatar_id: int = Field()
+    game_state: GameState = Field()
+
+    @validator("source")
+    def defines_next_turn(cls, value: str):
+        source = Source(value)
+
+        if "next_turn" not in source.locals:
+            raise ValueError("next_turn callable not in source")
+
+        # TODO: validate next_turns arguments' name.
+
+        return source
 
 
 class TestResultsCollector:
-    def __init__(self):
+    def __init__(self, data: Data):
+        self.data = data
         self.passed = []
         self.failed = []
         self.xfailed = []
@@ -39,29 +68,50 @@ class TestResultsCollector:
 
         return json.dumps(obj)
 
+    @pytest.fixture
+    def next_turn(self):
+        def next_turn(world_state, avatar_state):
+            self.data.source.locals["world_state"] = world_state
+            self.data.source.locals["avatar_state"] = avatar_state
+            return eval(
+                "next_turn(world_state, avatar_state)",
+                self.data.source.globals,
+                self.data.source.locals,
+            )
 
-class Data(BaseModel):
-    worksheet_id: int = Field(ge=1, le=2)
-    source: str = Field()
-    world_state: Json = Field()
-    avatar_state: Json = Field()
+        return next_turn
 
-    # TODO: add validate that source contains "def next_turn(world_state, avatar_state):"
+    @pytest.fixture
+    def world_state(self):
+        # TODO: refactor
+        return WorldMapCreator.generate_world_map_from_game_state(
+            self.data.game_state.json()
+        )
+
+    @pytest.fixture
+    def avatar_state(self):
+        # TODO: refactor
+        player = next(
+            (
+                player
+                for player in self.data.game_state.players
+                if player.id == self.data.current_avatar_id
+            )
+        )
+        return create_avatar_state(player.json())
+
+
+class Error(Exception):
+    pass
 
 
 def run(data: Data):
-    collector = TestResultsCollector()
+    collector = TestResultsCollector(data)
     exit_code = pytest.main(
         args=[
             "-c",
             "pytest.ini",
-            "--source",
-            data.source,
-            "--world_state",
-            json.dumps(data.world_state),
-            "--avatar_state",
-            json.dumps(data.avatar_state),
-            f"test_worksheet_{data.worksheet_id}.py",
+            f"test_worksheet_{data.game_state.worksheetID}.py",
         ],
         plugins=[collector],
     )
