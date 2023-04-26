@@ -1,5 +1,6 @@
 from inspect import signature
 import json
+import re
 
 from pydantic import BaseModel, Field, validator
 import pytest
@@ -40,7 +41,7 @@ class Data(BaseModel):
         return source
 
 
-class TestResultsCollector:
+class PytestPlugin:
     def __init__(self, data: Data):
         self.data = data
         self.passed = []
@@ -60,7 +61,9 @@ class TestResultsCollector:
         def get_reports(name: str):
             obj[name] = [
                 {
-                    "head_line": report.head_line,
+                    "task_id": int(
+                        re.match(r"test_task_([0-9]+)", report.head_line).group(1)
+                    ),
                 }
                 for report in getattr(self, name)
             ]
@@ -109,15 +112,15 @@ class Error(Exception):
 
 
 def run(data: Data):
-    collector = TestResultsCollector(data)
+    plugin = PytestPlugin(data)
     exit_code = pytest.main(
         args=[
             "-c",
             "pytest.ini",
             f"test_worksheet_{data.game_state.worksheetID}.py",
         ],
-        plugins=[collector],
+        plugins=[plugin],
     )
     if exit_code != 0:
         raise Error("Tests exited with a non-zero exit status.")
-    return collector.json()
+    return plugin.json()
