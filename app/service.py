@@ -1,13 +1,10 @@
-import typing as t
+from inspect import signature
 import json
 
 from pydantic import BaseModel, Field, validator
 import pytest
 
-# TODO: fix commented out imports
-# from codeforlife.kurono.world_map import WorldMapCreator
-# from codeforlife.kurono.avatar_state import create_avatar_state
-from kurono import GameState
+from codeforlife.kurono import WorldMapCreator, create_avatar_state, schema
 
 
 class Source:
@@ -22,16 +19,23 @@ class Source:
 class Data(BaseModel):
     source: str = Field()
     current_avatar_id: int = Field()
-    game_state: GameState = Field()
+    game_state: schema.GameState = Field()
 
     @validator("source")
     def defines_next_turn(cls, value: str):
         source = Source(value)
 
-        if "next_turn" not in source.locals:
-            raise ValueError("next_turn callable not in source")
+        next_turn = source.locals.get("next_turn")
+        if not next_turn:
+            raise ValueError("next_turn not defined in source")
+        if not callable(next_turn):
+            raise ValueError("next_turn is not a callable")
 
-        # TODO: validate next_turns arguments' name.
+        next_turn_parameters = signature(next_turn).parameters
+        if len(next_turn_parameters) != 2:
+            raise ValueError("next_turn expected 2 parameters")
+        if list(next_turn_parameters.keys()) != ["world_state", "avatar_state"]:
+            raise ValueError("next_turn has the wrong named parameters")
 
         return source
 
@@ -84,9 +88,8 @@ class TestResultsCollector:
     @pytest.fixture
     def world_state(self):
         # TODO: refactor
-        return WorldMapCreator.generate_world_map_from_game_state(
-            self.data.game_state.json()
-        )
+        game_state = json.loads(self.data.game_state.json())
+        return WorldMapCreator.generate_world_map_from_game_state(game_state)
 
     @pytest.fixture
     def avatar_state(self):
@@ -98,7 +101,7 @@ class TestResultsCollector:
                 if player.id == self.data.current_avatar_id
             )
         )
-        return create_avatar_state(player.json())
+        return create_avatar_state(json.loads(player.json()))
 
 
 class Error(Exception):
