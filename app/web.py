@@ -1,10 +1,12 @@
 from flask import Flask, request, Response
+from flask_cors import CORS
 from pydantic import ValidationError
 
 import service
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/", methods=["POST"])
