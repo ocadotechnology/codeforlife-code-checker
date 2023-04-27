@@ -1,34 +1,32 @@
+import typing as t
 from inspect import signature
 import json
 import re
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, PrivateAttr
 import pytest
 
 from codeforlife.kurono import WorldMapCreator, create_avatar_state, schema
 
 
-class Source:
-    def __init__(self, value: str):
-        self.code = value
-        self.globals = {}
-        self.locals = {}
-
-        exec(value, self.globals, self.locals)
+class Source(BaseModel):
+    code: str = Field()
+    _globals: t.Dict[str, t.Any] = PrivateAttr(default_factory=dict)
+    _locals: t.Dict[str, t.Any] = PrivateAttr(default_factory=dict)
 
 
 class Data(BaseModel):
-    source: str = Field()
+    source: Source = Field()
     current_avatar_id: int = Field()
     game_state: schema.GameState = Field()
 
     @validator("source")
-    def defines_next_turn(cls, value: str):
-        source = Source(value)
+    def defines_next_turn(cls, source: Source):
+        exec(source.code, source._globals, source._locals)
 
-        next_turn = source.locals.get("next_turn")
+        next_turn = source._locals.get("next_turn")
         if not next_turn:
-            raise ValueError("next_turn not defined in source")
+            raise ValueError("next_turn is not defined")
         if not callable(next_turn):
             raise ValueError("next_turn is not a callable")
 
@@ -76,14 +74,18 @@ class PytestPlugin:
         return json.dumps(obj)
 
     @pytest.fixture
+    def source(self):
+        return self.data.source
+
+    @pytest.fixture
     def next_turn(self):
         def next_turn(world_state, avatar_state):
-            self.data.source.locals["world_state"] = world_state
-            self.data.source.locals["avatar_state"] = avatar_state
+            self.data.source._locals["world_state"] = world_state
+            self.data.source._locals["avatar_state"] = avatar_state
             return eval(
                 "next_turn(world_state, avatar_state)",
-                self.data.source.globals,
-                self.data.source.locals,
+                self.data.source._globals,
+                self.data.source._locals,
             )
 
         return next_turn
