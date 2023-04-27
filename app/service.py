@@ -6,12 +6,33 @@ import re
 from pydantic import BaseModel, Field, validator, PrivateAttr
 import pytest
 
-from codeforlife.kurono import WorldMapCreator, create_avatar_state, schema
+from codeforlife.kurono import (
+    WorldMapCreator,
+    create_avatar_state,
+    schema,
+    direction,
+    location,
+    MoveAction,
+    PickupAction,
+    WaitAction,
+    MoveTowardsAction,
+    DropAction,
+)
 
 
 class Source(BaseModel):
     code: str = Field()
-    _globals: t.Dict[str, t.Any] = PrivateAttr(default_factory=dict)
+    _globals: t.Dict[str, t.Any] = PrivateAttr(
+        default_factory=lambda: {
+            "direction": direction,
+            "location": location,
+            "MoveAction": MoveAction,
+            "PickupAction": PickupAction,
+            "WaitAction": WaitAction,
+            "MoveTowardsAction": MoveTowardsAction,
+            "DropAction": DropAction,
+        }
+    )
     _locals: t.Dict[str, t.Any] = PrivateAttr(default_factory=dict)
 
 
