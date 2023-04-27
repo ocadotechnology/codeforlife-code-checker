@@ -25,7 +25,8 @@
         "web:app"
       ],
       "env": {
-        "GEVENT_SUPPORT": "True"
+        "GEVENT_SUPPORT": "True",
+        "BIND": "localhost:8080"
       }
     }
   ]
