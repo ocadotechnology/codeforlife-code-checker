@@ -140,7 +140,7 @@ def run(data: Data):
         args=[
             "-c",
             "pytest.ini",
-            f"test_worksheet_{data.game_state.worksheetID}.py",
+            f"worksheets/test_worksheet_{data.game_state.worksheetID}.py",
         ],
         plugins=[plugin],
     )

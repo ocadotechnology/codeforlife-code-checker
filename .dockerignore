@@ -2,3 +2,6 @@ LICENSE
 README.md
 .gitignore
 .vscode
+pyproject.toml
+.pytest_cache
+app/tests/

@@ -28,6 +28,15 @@
         "GEVENT_SUPPORT": "True",
         "BIND": "localhost:8080"
       }
+    },
+    {
+      "name": "Pytest",
+      "type": "python",
+      "request": "test",
+      "justMyCode": false,
+      "presentation": {
+        "hidden": true
+      }
     }
   ]
 }

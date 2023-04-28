@@ -3,7 +3,7 @@ from codeforlife.kurono import (
     MoveAction,
 )
 
-from service import Source
+from ..service import Source
 
 
 # function badge1Trigger(result: any): boolean {
@@ -37,7 +37,7 @@ def test_task_1(next_turn, world_state, avatar_state):
 #   // And check it returns a move action
 #   return result.action.action_type === 'move' && codeContainsKeywords
 # }s
-def test_task_2(next_turn, world_state, avatar_state, source: Source):
+def test_task_2(next_turn, world_state, avatar_state, source: Source):    
     result = next_turn(world_state, avatar_state)
     # TODO: assert result
 
