@@ -44,6 +44,8 @@ class Data(BaseModel):
     @validator("source")
     def defines_next_turn(cls, source: Source):
         exec(source.code, source._globals, source._locals)
+        for key in [key for key in source._locals.keys() if key != "next_turn"]:
+            source._globals[key] = source._locals.pop(key)
 
         next_turn = source._locals.get("next_turn")
         if not next_turn:
@@ -130,13 +132,9 @@ class PytestPlugin:
         return create_avatar_state(json.loads(player.json()))
 
 
-class Error(Exception):
-    pass
-
-
 def run(data: Data):
     plugin = PytestPlugin(data)
-    exit_code = pytest.main(
+    pytest.main(
         args=[
             "-c",
             "pytest.ini",
@@ -144,6 +142,4 @@ def run(data: Data):
         ],
         plugins=[plugin],
     )
-    if exit_code != 0:
-        raise Error("Tests exited with a non-zero exit status.")
     return plugin.json()
