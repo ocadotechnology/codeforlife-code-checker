@@ -1,9 +1,3 @@
-from unittest.mock import patch
-
-from codeforlife.kurono import (
-    direction,
-)
-
 from app.service import Data, run
 
 
@@ -12,16 +6,22 @@ def test_task_1():
         task_id=1,
         source={
             "code": """
+import random
+
+def get_random_dir():
+    return random.choice(direction.ALL_DIRECTIONS)
+
 def next_turn(world_state, avatar_state):
-    new_dir = direction.SOUTH
-    action = MoveAction(new_dir)
-    return action
+    while True:
+        random_dir = get_random_dir()
+        if world_state.can_move_to(avatar_state.location + random_dir):
+            return MoveAction(random_dir)
 """
         },
         current_avatar_id=1,
         game_state={
             "era": "future",
-            "worksheetID": 1,
+            "worksheetID": 2,
             "southWestCorner": {"x": -15, "y": -15},
             "northEastCorner": {"x": 15, "y": 15},
             "players": [
@@ -48,15 +48,14 @@ def test_task_2():
 import random
 
 def next_turn(world_state, avatar_state):
-    new_dir = random.choice(direction.ALL_DIRECTIONS)
-    action = MoveAction(new_dir)
-    return action
+    if world_state.cells[avatar_state.location].has_artefact():
+        return PickupAction()
 """
         },
         current_avatar_id=1,
         game_state={
             "era": "future",
-            "worksheetID": 1,
+            "worksheetID": 2,
             "southWestCorner": {"x": -15, "y": -15},
             "northEastCorner": {"x": 15, "y": 15},
             "players": [
@@ -66,49 +65,13 @@ def next_turn(world_state, avatar_state):
                     "orientation": "north",
                 },
             ],
-            "interactables": [],
+            "interactables": [
+                {
+                    "location": {"x": 0, "y": 0},
+                    "type": "key",
+                },
+            ],
             "obstacles": [],
-            "turnCount": 1,
-        },
-    )
-    report_summary = run(data)
-    assert any(report.task_id == data.task_id for report in report_summary.passed)
-
-
-def test_task_3():
-    data = Data(
-        task_id=3,
-        source={
-            "code": """
-import random
-
-def next_turn(world_state, avatar_state):
-    while True:
-        new_dir = random.choice(direction.ALL_DIRECTIONS)
-        if world_state.can_move_to(avatar_state.location + new_dir):
-            return MoveAction(new_dir)
-"""
-        },
-        current_avatar_id=1,
-        game_state={
-            "era": "future",
-            "worksheetID": 1,
-            "southWestCorner": {"x": -15, "y": -15},
-            "northEastCorner": {"x": 15, "y": 15},
-            "players": [
-                {
-                    "location": {"x": 0, "y": 0},
-                    "id": 1,
-                    "orientation": "north",
-                },
-            ],
-            "interactables": [],
-            "obstacles": [
-                {
-                    "location": {"x": 0, "y": 1},
-                    "texture": 1,
-                }
-            ],
             "turnCount": 1,
         },
     )
