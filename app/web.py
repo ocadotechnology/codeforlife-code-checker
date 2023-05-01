@@ -17,13 +17,11 @@ def run():
         return Response(error.json(), status=400, content_type="application/json")
 
     try:
-        response = service.run(data)
-    except service.Error as error:
-        return Response(str(error), status=500, content_type="text/plain")
-    except Exception:
-        return Response(status=500)
+        result = service.run(data)
+    except Exception as ex:
+        return Response(str(ex), status=500, content_type="text/plain")
 
-    return Response(response, status=200, content_type="application/json")
+    return Response(result.json(), status=200, content_type="application/json")
 
 
 if __name__ == "__main__":

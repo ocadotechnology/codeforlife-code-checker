@@ -19,6 +19,9 @@ from codeforlife.kurono import (
     DropAction,
 )
 
+if t.TYPE_CHECKING:
+    from _pytest.terminal import TerminalReporter
+
 
 class Source(BaseModel):
     code: str = Field()
@@ -39,6 +42,7 @@ class Source(BaseModel):
 class Data(BaseModel):
     source: Source = Field()
     current_avatar_id: int = Field()
+    task_id: t.Optional[int] = Field(ge=1)
     game_state: schema.GameState = Field()
 
     @validator("source")
@@ -63,38 +67,37 @@ class Data(BaseModel):
 
 
 class PytestPlugin:
+    class ReportSummary(BaseModel):
+        class Report(BaseModel):
+            task_id: int = Field(ge=1)
+
+        passed: t.List[Report] = Field()
+        failed: t.List[Report] = Field()
+        xfailed: t.List[Report] = Field()
+        skipped: t.List[Report] = Field()
+
     def __init__(self, data: Data):
         self.data = data
-        self.passed = []
-        self.failed = []
-        self.xfailed = []
-        self.skipped = []
+        self.report_summary: PytestPlugin.ReportSummary = None
 
-    def pytest_terminal_summary(self, terminalreporter):
-        self.passed = terminalreporter.stats.get("passed", [])
-        self.failed = terminalreporter.stats.get("failed", [])
-        self.xfailed = terminalreporter.stats.get("xfailed", [])
-        self.skipped = terminalreporter.stats.get("skipped", [])
-
-    def json(self):
-        obj = {}
-
-        def get_reports(name: str):
-            obj[name] = [
+    def pytest_terminal_summary(self, terminalreporter: "TerminalReporter"):
+        def summarize_reports(stats_key: str):
+            reports: t.List[pytest.TestReport] = []
+            return [
                 {
                     "task_id": int(
                         re.match(r"test_task_([0-9]+)", report.head_line).group(1)
                     ),
                 }
-                for report in getattr(self, name)
+                for report in terminalreporter.stats.get(stats_key, reports)
             ]
 
-        get_reports("passed")
-        get_reports("failed")
-        get_reports("xfailed")
-        get_reports("skipped")
-
-        return json.dumps(obj)
+        self.report_summary = self.ReportSummary(
+            passed=summarize_reports("passed"),
+            failed=summarize_reports("failed"),
+            xfailed=summarize_reports("xfailed"),
+            skipped=summarize_reports("skipped"),
+        )
 
     @pytest.fixture
     def source(self):
@@ -133,13 +136,16 @@ class PytestPlugin:
 
 
 def run(data: Data):
+    tests_selection = [f"worksheets/test_worksheet_{data.game_state.worksheetID}.py"]
+    if data.task_id:
+        tests_selection.append(f"test_task_{data.task_id}")
     plugin = PytestPlugin(data)
     pytest.main(
         args=[
             "-c",
             "pytest.ini",
-            f"worksheets/test_worksheet_{data.game_state.worksheetID}.py",
+            "::".join(tests_selection),
         ],
         plugins=[plugin],
     )
-    return plugin.json()
+    return plugin.report_summary

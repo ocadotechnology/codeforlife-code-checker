@@ -22,10 +22,8 @@ def test_task_2(next_turn, world_state, avatar_state, source: Source):
     assert source._globals.get("random") == random
 
     results: t.List[MoveAction] = [
-        next_turn(world_state, avatar_state) for _ in range(100)
+        next_turn(world_state, avatar_state) for _ in range(1000)
     ]
-
-    # TODO: assert "direction." was called at least once.
 
     assert all(type(result) == MoveAction for result in results)
     assert any(result.direction == direction.NORTH for result in results)
@@ -35,10 +33,10 @@ def test_task_2(next_turn, world_state, avatar_state, source: Source):
 
 
 def test_task_3(next_turn, world_state, avatar_state):
-    # TODO: mock call to print()?
     with patch.object(world_state, "can_move_to") as world_state__can_move_to:
-        with patch.object(avatar_state, "location") as avatar_state__location:
-            result = next_turn(world_state, avatar_state)
-            world_state__can_move_to.assert_called_once()
-            avatar_state__location.assert_called_once()
-    # TODO: assert result
+        result = next_turn(world_state, avatar_state)
+        world_state__can_move_to.assert_called()
+
+    assert type(result) == MoveAction
+    new_location = avatar_state.location + result.direction
+    assert world_state.cells[new_location].habitable
