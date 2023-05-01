@@ -15,7 +15,7 @@ def test_task_1(next_turn, world_state, avatar_state, source: Source):
 
     import random
 
-    assert source._globals.get("random") == random
+    assert source._globals["random"] == random
     get_random_dir = source._globals["get_random_dir"]
     assert callable(get_random_dir)
 
