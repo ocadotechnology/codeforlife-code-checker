@@ -15,4 +15,4 @@ RUN python -m pip install --upgrade pip \
 # Start server.
 COPY /app /app
 WORKDIR /app
-ENTRYPOINT [ "gunicorn", "api:app" ]
+ENTRYPOINT [ "pipenv", "run", "gunicorn", "api:app" ]
