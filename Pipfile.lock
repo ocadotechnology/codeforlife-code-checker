@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "385eac6bff86d239bb9532c0f3ced890ef6f6c0bbd77de043c0b738e22e7793c"
+            "sha256": "08c0f92a7e4c46318cc57fa3135bffda8b45468575bd5053d76e6bd6704d91cc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -34,7 +34,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "b0234cef909eb2a7d614a0ec008b5a89f109812c"
+            "ref": "c44a994874a1b57926b6579db3fa2af139eca4e4"
         },
         "django": {
             "hashes": [
@@ -439,11 +439,19 @@
         },
         "werkzeug": {
             "hashes": [
-                "sha256:2d35a28a75ae03727eae14ea7d13627c0f77aed6b9998441e6dae0b387f697fc",
-                "sha256:69a4b8fcbb30a4c3fa81a5cebd961541273e4d222a4c08593b0b18312e14f64a"
+                "sha256:2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe",
+                "sha256:56433961bc1f12533306c624f3be5e744389ac61d722175d543e1751285da612"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==2.3.1"
+            "markers": "python_version >= '3.7'",
+            "version": "==2.2.3"
+        },
+        "zipp": {
+            "hashes": [
+                "sha256:112929ad649da941c23de50f356a2b5570c954b65150642bccdd66bf194d224b",
+                "sha256:48904fc76a60e542af151aded95726c1a5c34ed43ab4134b597665c86d7ad556"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==3.15.0"
         },
         "zope.event": {
             "hashes": [

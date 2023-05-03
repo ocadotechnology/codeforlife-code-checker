@@ -1,5 +1,6 @@
 from unittest.mock import Mock, patch
 
+from codeforlife.service.interfaces.kurono_badges import RequestBody
 from codeforlife.kurono import (
     direction,
     Cell,
@@ -7,10 +8,8 @@ from codeforlife.kurono import (
     PickupAction,
 )
 
-from ..service import Source
 
-
-def test_task_1(next_turn, world_state, avatar_state, source: Source):
+def test_task_1(next_turn, world_state, avatar_state, source: RequestBody.Source):
     # TODO: refactor
 
     import random

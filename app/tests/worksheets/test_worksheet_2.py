@@ -1,8 +1,10 @@
-from app.service import Data, run
+from codeforlife.service.interfaces.kurono_badges import RequestBody
+
+from app.service import run
 
 
 def test_task_1():
-    data = Data(
+    request = RequestBody(
         task_id=1,
         source={
             "code": """
@@ -36,12 +38,12 @@ def next_turn(world_state, avatar_state):
             "turnCount": 1,
         },
     )
-    report_summary = run(data)
-    assert any(report.task_id == data.task_id for report in report_summary.passed)
+    response = run(request)
+    assert any(report.task_id == request.task_id for report in response.passed)
 
 
 def test_task_2():
-    data = Data(
+    request = RequestBody(
         task_id=2,
         source={
             "code": """
@@ -75,5 +77,5 @@ def next_turn(world_state, avatar_state):
             "turnCount": 1,
         },
     )
-    report_summary = run(data)
-    assert any(report.task_id == data.task_id for report in report_summary.passed)
+    response = run(request)
+    assert any(report.task_id == request.task_id for report in response.passed)

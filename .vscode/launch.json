@@ -11,7 +11,7 @@
       "console": "integratedTerminal",
       "justMyCode": false,
       "cwd": "${workspaceFolder}/app",
-      "program": "web.py"
+      "program": "api.py"
     },
     {
       "name": "Gunicorn",
@@ -22,7 +22,7 @@
       "cwd": "${workspaceFolder}/app",
       "module": "gunicorn",
       "args": [
-        "web:app"
+        "api:app"
       ],
       "env": {
         "GEVENT_SUPPORT": "True",

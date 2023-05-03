@@ -1,12 +1,11 @@
 import typing as t
 from unittest.mock import patch
 
+from codeforlife.service.interfaces.kurono_badges import RequestBody
 from codeforlife.kurono import (
     MoveAction,
     direction,
 )
-
-from ..service import Source
 
 
 def test_task_1(next_turn, world_state, avatar_state):
@@ -15,7 +14,7 @@ def test_task_1(next_turn, world_state, avatar_state):
     assert action.direction != direction.NORTH
 
 
-def test_task_2(next_turn, world_state, avatar_state, source: Source):
+def test_task_2(next_turn, world_state, avatar_state, source: RequestBody.Source):
     import random
 
     assert source._globals["random"] == random
