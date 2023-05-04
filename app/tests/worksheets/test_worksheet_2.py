@@ -1,11 +1,10 @@
-from codeforlife.service.interfaces.kurono_badges import RequestBody
-
 from app.service import run
 
 
 def test_task_1():
-    request = RequestBody(
-        task_id=1,
+    task_id = 1
+    response = run(
+        task_id=task_id,
         source={
             "code": """
 import random
@@ -38,13 +37,13 @@ def next_turn(world_state, avatar_state):
             "turnCount": 1,
         },
     )
-    response = run(request)
-    assert any(report.task_id == request.task_id for report in response.passed)
+    assert any(report.task_id == task_id for report in response.passed)
 
 
 def test_task_2():
-    request = RequestBody(
-        task_id=2,
+    task_id = 2
+    response = run(
+        task_id=task_id,
         source={
             "code": """
 import random
@@ -77,5 +76,4 @@ def next_turn(world_state, avatar_state):
             "turnCount": 1,
         },
     )
-    response = run(request)
-    assert any(report.task_id == request.task_id for report in response.passed)
+    assert any(report.task_id == task_id for report in response.passed)

@@ -1,11 +1,22 @@
 import typing as t
+from inspect import signature
 import json
 import re
 
 import pytest
 
 from codeforlife.service.interfaces.kurono_badges import RequestBody, ResponseBody
-from codeforlife.kurono import WorldMapCreator, create_avatar_state
+from codeforlife.kurono import (
+    WorldMapCreator,
+    create_avatar_state,
+    direction,
+    location,
+    MoveAction,
+    PickupAction,
+    WaitAction,
+    MoveTowardsAction,
+    DropAction,
+)
 
 if t.TYPE_CHECKING:
     from _pytest.terminal import TerminalReporter
@@ -71,7 +82,38 @@ class PytestPlugin:
         return create_avatar_state(json.loads(player.json()))
 
 
-def run(request: RequestBody):
+def execute(source: RequestBody.Source):
+    source._globals.update(
+        {
+            "direction": direction,
+            "location": location,
+            "MoveAction": MoveAction,
+            "PickupAction": PickupAction,
+            "WaitAction": WaitAction,
+            "MoveTowardsAction": MoveTowardsAction,
+            "DropAction": DropAction,
+        }
+    )
+    exec(source.code, source._globals, source._locals)
+    source._globals.update(source._locals)
+    source._locals.clear()
+
+    next_turn = source._globals.get("next_turn")
+    if not next_turn:
+        raise ValueError("next_turn is not defined")
+    if not callable(next_turn):
+        raise ValueError("next_turn is not a callable")
+
+    next_turn_parameters = signature(next_turn).parameters
+    if len(next_turn_parameters) != 2:
+        raise ValueError("next_turn expected 2 parameters")
+    if list(next_turn_parameters.keys()) != ["world_state", "avatar_state"]:
+        raise ValueError("next_turn has the wrong named parameters")
+
+
+def run(**request_json):
+    request = RequestBody(**request_json, execute=execute)
+
     tests_selection = [f"worksheets/test_worksheet_{request.game_state.worksheetID}.py"]
     if request.task_id:
         tests_selection.append(f"test_task_{request.task_id}")
