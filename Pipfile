@@ -7,8 +7,6 @@ name = "pypi"
 codeforlife = {ref = "v0.4.7", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
 flask = "==2.2.3"
 flask-cors = "==3.0.10"
-gunicorn = "==20.1.0"
-gevent = "==22.10.2"
 pydantic = "==1.10.7"
 pytest = "==7.3.1"
 
