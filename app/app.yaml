@@ -1,0 +1,8 @@
+# REF: https://cloud.google.com/appengine/docs/standard/reference/app-yaml?tab=python
+
+runtime: python311
+instance_class: F2
+service: kurono-badges
+
+inbound_services:
+- warmup
