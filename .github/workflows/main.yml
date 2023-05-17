@@ -41,4 +41,4 @@ jobs:
           pipenv requirements > app/requirements.txt
 
       - name: 🚀 Deploy App on GCloud
-        run: gcloud app deploy app/.yaml
+        run: gcloud app deploy app/app.yaml
