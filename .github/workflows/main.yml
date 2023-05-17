@@ -21,23 +21,24 @@ jobs:
       - name: 🛫 Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: 3.11
 
-      - id: "auth"
-        uses: "google-github-actions/auth@v1"
+      - name: 🗝 Authenticate with GCloud
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: 🤖 Set up GCloud SDK
+        uses: google-github-actions/setup-gcloud@v1
 
-      - name: Generate requirements.txt
+      - name: 🛠 Generate Requirements
         run: |
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv requirements > app/requirements.txt
 
-      - name: Deploy GCloud App
-        run: gcloud app deploy app/app.yaml
+      - name: 🚀 Deploy App on GCloud
+        run: gcloud app deploy app/.yaml
