@@ -12,6 +12,7 @@ on:
       - "LICENSE"
       - ".gitignore"
       - ".vscode"
+  workflow_dispatch:
 
 env:
   SERVICE: kurono-badges
