@@ -66,12 +66,7 @@ def next_turn(world_state, avatar_state):
                     "orientation": "north",
                 },
             ],
-            "interactables": [
-                {
-                    "location": {"x": 0, "y": 0},
-                    "type": "key",
-                },
-            ],
+            "interactables": [],
             "obstacles": [],
             "turnCount": 1,
         },

@@ -59,6 +59,27 @@ def test_task_1(next_turn, world_state, avatar_state, source: RequestBody.Source
 
 
 def test_task_2(next_turn, world_state, avatar_state):
-    assert world_state.cells[avatar_state.location].has_artefact()
-    action = next_turn(world_state, avatar_state)
-    assert type(action) == PickupAction
+    cell: Cell = world_state.cells[avatar_state.location]
+    location = {
+        "x": avatar_state.location.x,
+        "y": avatar_state.location.y,
+    }
+
+    with patch.dict(
+        world_state.cells,
+        {
+            avatar_state.location: Cell(
+                location,
+                interactable={"location": location, "type": "key"},
+            )
+        },
+    ):
+        action = next_turn(world_state, avatar_state)
+        assert isinstance(action, PickupAction)
+
+    with patch.dict(
+        world_state.cells,
+        {avatar_state.location: Cell(location, interactable=None)},
+    ):
+        action = next_turn(world_state, avatar_state)
+        assert not isinstance(action, PickupAction)
