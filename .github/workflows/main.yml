@@ -48,7 +48,7 @@ jobs:
       - name: 🖊️ Configure App Deployment
         uses: mikefarah/yq@master
         with:
-          cmd: yq -i '.service = ${{ env.BRANCH }}-${{ env.SERVICE }}' app/app.yaml
+          cmd: yq -i '.service = "${{ env.BRANCH }}-${{ env.SERVICE }}"' app/app.yaml
 
       - name: 🚀 Deploy App on GCloud
         run: gcloud app deploy app/app.yaml
