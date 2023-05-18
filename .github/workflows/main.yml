@@ -2,7 +2,10 @@ name: Main
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - "main"
+      - "development" 
+      - "staging"
     paths-ignore:
       - "README.md"
       - "CHANGELOG.md"
@@ -11,8 +14,7 @@ on:
       - ".vscode"
 
 env:
-  TAG: kurono-badges
-  VERSION: latest
+  SERVICE: kurono-badges
 
 jobs:
   deploy:
@@ -20,6 +22,9 @@ jobs:
     steps:
       - name: 🛫 Checkout
         uses: actions/checkout@v3
+      
+      - name: Set Branch Env Var
+        run: echo "BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v4
@@ -39,6 +44,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv requirements > app/requirements.txt
+      
+      - name: 🖊️ Configure App Deployment
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.service = ${{ env.BRANCH }}-${{ env.SERVICE }}' app/app.yaml
 
       - name: 🚀 Deploy App on GCloud
         run: gcloud app deploy app/app.yaml
