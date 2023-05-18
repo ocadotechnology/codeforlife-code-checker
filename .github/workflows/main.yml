@@ -23,7 +23,7 @@ jobs:
       - name: 🛫 Checkout
         uses: actions/checkout@v3
       
-      - name: Set Branch Env Var
+      - name: 🌳 Set Branch Env Var
         run: echo "BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
 
       - name: 🐍 Set up Python
