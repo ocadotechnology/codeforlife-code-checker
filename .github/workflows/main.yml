@@ -3,7 +3,7 @@ name: Main
 on:
   push:
     branches:
-      - "main"
+      - "production"
       - "development" 
       - "staging"
     paths-ignore:
