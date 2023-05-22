@@ -13,11 +13,20 @@ def get_random_dir():
     return random.choice(direction.ALL_DIRECTIONS)
 
 def next_turn(world_state, avatar_state):
-    while True:
+    random_dir = get_random_dir()
+    if not world_state.can_move_to(avatar_state.location + random_dir):
         random_dir = get_random_dir()
-        if world_state.can_move_to(avatar_state.location + random_dir):
-            return MoveAction(random_dir)
+    return MoveAction(random_dir)
 """
+            # TODO: talk to Rebecca about this approach.
+            # import random
+            # def get_random_dir():
+            #     return random.choice(direction.ALL_DIRECTIONS)
+            # def next_turn(world_state, avatar_state):
+            #     while True:
+            #         random_dir = get_random_dir()
+            #         if world_state.can_move_to(avatar_state.location + random_dir):
+            #             return MoveAction(random_dir)
         },
         current_avatar_id=1,
         game_state={
