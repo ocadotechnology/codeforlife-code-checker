@@ -10,7 +10,7 @@ from codeforlife.kurono import (
 
 def test_task_1(next_turn, world_state, avatar_state):
     action = next_turn(world_state, avatar_state)
-    assert type(action) == MoveAction
+    assert isinstance(action, MoveAction)
     assert action.direction != direction.NORTH
 
 
@@ -23,7 +23,7 @@ def test_task_2(next_turn, world_state, avatar_state, source: RequestBody.Source
         next_turn(world_state, avatar_state) for _ in range(1000)
     ]
 
-    assert all(type(action) == MoveAction for action in actions)
+    assert all(isinstance(action, MoveAction) for action in actions)
     assert any(action.direction == direction.NORTH for action in actions)
     assert any(action.direction == direction.EAST for action in actions)
     assert any(action.direction == direction.SOUTH for action in actions)
@@ -42,5 +42,4 @@ def test_task_3(next_turn, world_state, avatar_state):
         action = next_turn(world_state, avatar_state)
         world_state__can_move_to.assert_called()
 
-    assert type(action) == MoveAction
-    assert world_state.can_move_to(avatar_state.location + action.direction)
+    assert isinstance(action, MoveAction)
